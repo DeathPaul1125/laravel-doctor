@@ -38,7 +38,10 @@ final class AppDebugCheck implements Check
         $examplePath = $context->projectRoot . '/.env.example';
 
         if (file_exists($envPath)) {
-            $env = parse_ini_file($envPath, false, INI_SCANNER_RAW) ?: [];
+            $env = @parse_ini_file($envPath, false, INI_SCANNER_RAW);
+            if (!is_array($env)) {
+                $env = $this->parseEnvFallback($envPath);
+            }
             $debug = strtolower((string) ($env['APP_DEBUG'] ?? ''));
             $appEnv = strtolower((string) ($env['APP_ENV'] ?? ''));
             $appKey = trim((string) ($env['APP_KEY'] ?? ''), "\"' ");
@@ -77,5 +80,34 @@ final class AppDebugCheck implements Check
         }
 
         return $findings;
+    }
+
+    /**
+     * Parser .env tolerante (cuando parse_ini_file falla por comentarios con caracteres especiales).
+     *
+     * @return array<string, string>
+     */
+    private function parseEnvFallback(string $path): array
+    {
+        $env = [];
+        $lines = @file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) ?: [];
+        foreach ($lines as $line) {
+            $line = ltrim($line);
+            if ($line === '' || str_starts_with($line, '#')) {
+                continue;
+            }
+            $eq = strpos($line, '=');
+            if ($eq === false) {
+                continue;
+            }
+            $key = trim(substr($line, 0, $eq));
+            $value = trim(substr($line, $eq + 1));
+            if ((str_starts_with($value, '"') && str_ends_with($value, '"'))
+                || (str_starts_with($value, "'") && str_ends_with($value, "'"))) {
+                $value = substr($value, 1, -1);
+            }
+            $env[$key] = $value;
+        }
+        return $env;
     }
 }
