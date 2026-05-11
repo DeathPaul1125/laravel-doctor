@@ -1,91 +1,92 @@
 # Laravel Doctor
 
-> Inspired by [react-doctor](https://github.com/millionco/react-doctor). Catches bad Laravel before it ships.
+> Inspirado en [react-doctor](https://github.com/millionco/react-doctor). Detecta código Laravel problemático antes de que llegue a producción.
 
-Static analyzer that scans a Laravel project and reports issues across four dimensions, producing a **health score 0–100** plus a list of actionable findings.
+Analizador estático que escanea un proyecto Laravel y reporta problemas en cuatro dimensiones, produciendo una **puntuación de salud de 0–100** y una lista de hallazgos accionables.
 
-- **75+** → `great`
-- **50–74** → `needs-work`
-- **<50** → `critical`
+- **75+** → `great` (excelente)
+- **50–74** → `needs-work` (necesita trabajo)
+- **<50** → `critical` (crítico)
 
-## Install
+## Instalación
 
 ```bash
 composer require --dev deathpaul1125/laravel-doctor
 ```
 
-## Usage
+## Uso
 
-### Artisan (auto-registered)
+### Artisan (registrado automáticamente)
 
 ```bash
 php artisan doctor
 php artisan doctor --json
 php artisan doctor --category=security
-php artisan doctor --min-score=70       # CI: fail when score < 70
-php artisan doctor --baseline           # only count new issues
-php artisan doctor --update-baseline    # snapshot current state
+php artisan doctor --min-score=70       # CI: falla si la puntuación es menor a 70
+php artisan doctor --baseline           # solo cuenta los problemas nuevos
+php artisan doctor --update-baseline    # guarda el estado actual como referencia
+php artisan doctor --html=public/doctor.html   # genera reporte HTML interactivo
 ```
 
-### Standalone CLI
+### CLI standalone
 
 ```bash
 vendor/bin/laravel-doctor .
 vendor/bin/laravel-doctor . --json > doctor-report.json
 vendor/bin/laravel-doctor . --category=performance
-vendor/bin/laravel-doctor . --html=doctor-report.html   # interactive HTML
+vendor/bin/laravel-doctor . --html=doctor-report.html   # HTML interactivo
 ```
 
-### Web dashboard (auto-mounted in non-production)
+### Dashboard web (montado automáticamente fuera de producción)
 
-When the package is installed, the ServiceProvider mounts two routes — but only when `APP_ENV` is `local`, `development`, `testing` or `staging`:
+Al instalar el paquete, el ServiceProvider monta dos rutas — pero **solo** cuando `APP_ENV` es `local`, `development`, `testing` o `staging`:
 
-- `GET /doctor` → interactive HTML dashboard
-- `GET /doctor/json` → raw JSON
+- `GET /doctor` → dashboard HTML interactivo
+- `GET /doctor/json` → JSON crudo
 
-Just open `http://your-app.test/doctor` while developing.
+Solo abre `http://tu-app.test/doctor` mientras desarrollas.
 
-## Built-in checks (20)
+## Checks incluidos (20)
 
-### Security
-| ID                                | Severity        | Detects                                                   |
-| --------------------------------- | --------------- | --------------------------------------------------------- |
-| `security/mass-assignment`        | HIGH            | Models without `$fillable`/`$guarded`                     |
-| `security/raw-query-injection`    | CRITICAL        | `whereRaw`, `DB::raw`, etc. with variable interpolation   |
-| `security/blade-unescaped`        | HIGH            | `{!! $var !!}` in Blade (XSS risk)                        |
-| `security/app-config`             | CRITICAL/LOW    | `APP_DEBUG=true` in prod, empty `APP_KEY`, missing example|
-| `security/env-outside-config`     | MEDIUM          | `env()` called outside `config/`                          |
-| `security/hardcoded-secrets`      | CRITICAL        | AWS/Google/Slack/GitHub keys, JWTs, PEM blocks, password literals |
-| `security/missing-csrf`           | HIGH            | `<form method="POST">` without `@csrf`                    |
-| `security/request-all-to-fill`    | HIGH            | `Model::create($request->all())` and friends              |
-| `security/disabled-tls-verify`    | HIGH            | `'verify' => false`, `withoutVerifying()`, `CURLOPT_SSL_VERIFYPEER => false` |
+### Seguridad
+| ID                                | Severidad     | Detecta                                                              |
+| --------------------------------- | ------------- | -------------------------------------------------------------------- |
+| `security/mass-assignment`        | HIGH          | Modelos sin `$fillable`/`$guarded`                                   |
+| `security/raw-query-injection`    | CRITICAL      | `whereRaw`, `DB::raw`, etc. con interpolación de variables           |
+| `security/blade-unescaped`        | HIGH          | `{!! $var !!}` en Blade (riesgo de XSS)                              |
+| `security/app-config`             | CRITICAL/LOW  | `APP_DEBUG=true` en producción, `APP_KEY` vacío, `.env.example` ausente |
+| `security/env-outside-config`     | MEDIUM        | `env()` llamado fuera de `config/`                                   |
+| `security/hardcoded-secrets`      | CRITICAL      | Claves de AWS/Google/Slack/GitHub, JWTs, bloques PEM, passwords literales |
+| `security/missing-csrf`           | HIGH          | `<form method="POST">` sin `@csrf`                                   |
+| `security/request-all-to-fill`    | HIGH          | `Model::create($request->all())` y similares                         |
+| `security/disabled-tls-verify`    | HIGH          | `'verify' => false`, `withoutVerifying()`, `CURLOPT_SSL_VERIFYPEER => false` |
 
-### Performance
-| ID                                | Severity | Detects                                                  |
-| --------------------------------- | -------- | -------------------------------------------------------- |
-| `performance/possible-n-plus-one` | MEDIUM   | Relation access inside loops without eager-loading       |
-| `performance/load-all-rows`       | MEDIUM   | `Model::all()` in controllers/jobs/commands              |
-| `performance/missing-fk-index`    | MEDIUM   | Migration columns ending in `_id` without `->index()`/FK |
+### Rendimiento
+| ID                                | Severidad | Detecta                                                  |
+| --------------------------------- | --------- | -------------------------------------------------------- |
+| `performance/possible-n-plus-one` | MEDIUM    | Acceso a relaciones dentro de loops sin eager-loading    |
+| `performance/load-all-rows`       | MEDIUM    | `Model::all()` en controllers/jobs/commands              |
+| `performance/missing-fk-index`    | MEDIUM    | Columnas de migración que terminan en `_id` sin `->index()`/FK |
 
-### Architecture
-| ID                                       | Severity | Detects                                  |
-| ---------------------------------------- | -------- | ---------------------------------------- |
-| `architecture/fat-controller`            | MEDIUM   | Controllers >250 LOC or methods >60 LOC  |
-| `architecture/validation-in-controller`  | LOW      | Inline `$request->validate()`            |
-| `architecture/unnamed-route`             | LOW      | `Route::get(...)` without `->name(...)`  |
-| `architecture/closure-route`             | LOW      | Closure routes (block `route:cache`)     |
-| `architecture/missing-migration-down`    | LOW      | Migration files with empty/no `down()`   |
+### Arquitectura
+| ID                                       | Severidad | Detecta                                          |
+| ---------------------------------------- | --------- | ------------------------------------------------ |
+| `architecture/fat-controller`            | MEDIUM    | Controllers con >250 líneas o métodos con >60    |
+| `architecture/validation-in-controller`  | LOW       | `$request->validate()` inline en el controller   |
+| `architecture/unnamed-route`             | LOW       | `Route::get(...)` sin `->name(...)`              |
+| `architecture/closure-route`             | LOW       | Rutas con closure (bloquean `route:cache`)       |
+| `architecture/missing-migration-down`    | LOW       | Archivos de migración con `down()` vacío o ausente |
 
-### Quality
-| ID                              | Severity | Detects                                      |
-| ------------------------------- | -------- | -------------------------------------------- |
-| `quality/unused-import`         | LOW      | `use` statements that aren't referenced      |
-| `quality/duplicate-migration`   | MEDIUM   | Same table created in >1 migration           |
-| `quality/debug-statements`      | MEDIUM   | `dd`, `dump`, `var_dump`, `print_r`, `ray`   |
+### Calidad
+| ID                              | Severidad | Detecta                                          |
+| ------------------------------- | --------- | ------------------------------------------------ |
+| `quality/unused-import`         | LOW       | `use` statements no referenciados                |
+| `quality/duplicate-migration`   | MEDIUM    | Misma tabla creada en más de una migración       |
+| `quality/debug-statements`      | MEDIUM    | `dd`, `dump`, `var_dump`, `print_r`, `ray`       |
 
-## Configuration
+## Configuración
 
-Drop a `.laravel-doctor.json` at the project root:
+Coloca un archivo `.laravel-doctor.json` en la raíz del proyecto:
 
 ```json
 {
@@ -98,27 +99,27 @@ Drop a `.laravel-doctor.json` at the project root:
 }
 ```
 
-- `disable` — list of check IDs to skip entirely.
-- `ignore` — paths/globs to skip, or `{path, check, line}` objects for finer control. Supports `**` for any depth and `*` for a single segment.
+- `disable` — lista de IDs de checks a omitir completamente.
+- `ignore` — rutas/globs a ignorar, o objetos `{path, check, line}` para control más fino. Soporta `**` para profundidad arbitraria y `*` para un solo segmento.
 
-## Baseline workflow
+## Flujo con baseline
 
-For legacy projects with thousands of pre-existing issues, snapshot once and only fail on **new** problems:
+Para proyectos legacy con miles de problemas preexistentes, toma una foto del estado actual y haz que solo fallen los problemas **nuevos**:
 
 ```bash
-# Capture current state as accepted
+# Captura el estado actual como aceptado
 php artisan doctor --update-baseline
 git add .laravel-doctor.baseline.json
-git commit -m "chore: laravel-doctor baseline"
+git commit -m "chore: baseline de laravel-doctor"
 
-# Future runs hide known findings and score only new ones
+# Las siguientes corridas ocultan los hallazgos conocidos y solo puntúan los nuevos
 php artisan doctor --baseline --min-score=80
 ```
 
-## Sample output
+## Salida de ejemplo
 
 ```
-  Laravel Doctor — /var/www/my-app
+  Laravel Doctor — /var/www/mi-app
 
   SECURITY (3)
   ────────────────────────────────────────────────────────────
@@ -137,11 +138,11 @@ php artisan doctor --baseline --min-score=80
   security: 3 · performance: 2 · architecture: 1
 ```
 
-## JSON output (CI)
+## Salida JSON (para CI)
 
 ```json
 {
-  "project": "/var/www/my-app",
+  "project": "/var/www/mi-app",
   "score": 62,
   "grade": "needs-work",
   "totals": {
@@ -155,39 +156,39 @@ php artisan doctor --baseline --min-score=80
 
 ## GitHub Actions
 
-A workflow is provided at [`.github/workflows/laravel-doctor.yml`](.github/workflows/laravel-doctor.yml):
+El workflow viene incluido en [`.github/workflows/laravel-doctor.yml`](.github/workflows/laravel-doctor.yml):
 
-- Installs PHP 8.2 and Composer
-- Runs `laravel-doctor . --json --baseline --min-score=80`
-- Uploads the JSON report as an artifact
-- Posts a top-25 finding comment on PRs
-- Fails the build when score drops below 80
+- Instala PHP 8.2 y Composer
+- Ejecuta `laravel-doctor . --json --baseline --min-score=80`
+- Sube el reporte JSON como artefacto
+- Publica un comentario con los 25 hallazgos principales en los PRs
+- Falla el build si la puntuación cae por debajo de 80
 
-Copy it into any Laravel repo to get the same flow.
+Cópialo a cualquier repo Laravel para tener el mismo flujo.
 
-## Adding custom checks
+## Agregar checks personalizados
 
 ```php
 use LaravelDoctor\{Check, CheckContext, Finding, Category, Severity};
 
-final class MyCheck implements Check {
-    public function id(): string { return 'custom/my-rule'; }
+final class MiCheck implements Check {
+    public function id(): string { return 'custom/mi-regla'; }
     public function category(): string { return Category::QUALITY; }
-    public function description(): string { return 'Whatever'; }
+    public function description(): string { return 'Lo que sea'; }
     public function run(CheckContext $context): array {
-        // return Finding[]
+        // retorna Finding[]
     }
 }
 
-$doctor = new \LaravelDoctor\Doctor([new MyCheck(), ...\LaravelDoctor\Doctor::defaultChecks()]);
+$doctor = new \LaravelDoctor\Doctor([new MiCheck(), ...\LaravelDoctor\Doctor::defaultChecks()]);
 $result = $doctor->diagnose(new \LaravelDoctor\CheckContext(getcwd()));
 ```
 
-## Exit codes
+## Códigos de salida
 
-- `0` — score ≥ `--min-score`
-- `1` — score below threshold, or fatal error
+- `0` — puntuación ≥ `--min-score`
+- `1` — puntuación por debajo del umbral, o error fatal
 
-## License
+## Licencia
 
 MIT
