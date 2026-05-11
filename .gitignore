@@ -1,0 +1,16 @@
+/vendor/
+/composer.lock
+/.claude/
+/.phpunit.result.cache
+/.phpunit.cache/
+/.idea/
+/.vscode/
+/.DS_Store
+Thumbs.db
+*.log
+
+# Local doctor artifacts when scanning self
+/doctor-report.html
+/doctor-report.json
+/.laravel-doctor.baseline.json
+/.laravel-doctor.json

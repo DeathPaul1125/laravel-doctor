@@ -1,0 +1,16 @@
+{
+    "_": "Drop this file at your project root as .laravel-doctor.json to customise the scan.",
+    "disable": [
+        "architecture/unnamed-route",
+        "quality/unused-import"
+    ],
+    "ignore": [
+        "app/Http/Controllers/Legacy/**",
+        "database/migrations/2014_*_create_*_table.php",
+        { "path": "app/Models/User.php", "check": "security/mass-assignment" },
+        { "check": "performance/load-all-rows", "path": "app/Console/Commands/Seed*.php" }
+    ],
+    "thresholds": {
+        "fatController": { "fileLoc": 300, "methodLoc": 80 }
+    }
+}

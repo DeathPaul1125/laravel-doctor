@@ -1,0 +1,31 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+(function () {
+    $autoloads = [
+        __DIR__ . '/../vendor/autoload.php',
+        __DIR__ . '/../../../autoload.php',
+        __DIR__ . '/../../autoload.php',
+    ];
+
+    foreach ($autoloads as $file) {
+        if (file_exists($file)) {
+            require $file;
+            return;
+        }
+    }
+
+    fwrite(STDERR, "Could not locate composer autoload.php. Run `composer install` first.\n");
+    exit(1);
+})();
+
+use LaravelDoctor\Console\RunCommand;
+use Symfony\Component\Console\Application;
+
+$app = new Application('Laravel Doctor', '0.1.0');
+$run = new RunCommand();
+$app->add($run);
+$app->setDefaultCommand($run->getName(), true);
+$app->run();

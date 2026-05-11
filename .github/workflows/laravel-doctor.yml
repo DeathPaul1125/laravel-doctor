@@ -1,0 +1,78 @@
+name: Laravel Doctor
+
+on:
+  pull_request:
+  push:
+    branches: [main, master]
+
+jobs:
+  diagnose:
+    name: Run Laravel Doctor
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer:v2
+          coverage: none
+
+      - name: Cache composer
+        uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache
+          key: composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: composer-
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-interaction
+
+      - name: Run Laravel Doctor (baseline mode)
+        run: vendor/bin/laravel-doctor . --json --baseline --min-score=80 > doctor-report.json
+        continue-on-error: true
+
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laravel-doctor-report
+          path: doctor-report.json
+
+      - name: Annotate PR with findings
+        if: github.event_name == 'pull_request' && always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            if (!fs.existsSync('doctor-report.json')) return;
+            const report = JSON.parse(fs.readFileSync('doctor-report.json', 'utf8'));
+            const lines = [
+              `### Laravel Doctor — score **${report.score}/100** (${report.grade})`,
+              '',
+              `Findings: ${report.totals.findings} (security: ${report.totals.byCategory.security}, performance: ${report.totals.byCategory.performance}, architecture: ${report.totals.byCategory.architecture}, quality: ${report.totals.byCategory.quality})`,
+            ];
+            const top = report.findings.slice(0, 25).map(f =>
+              `- **${f.severity.toUpperCase()}** \`${f.check}\` — ${f.file}${f.line ? ':' + f.line : ''}\n  ${f.message}`
+            );
+            if (top.length) {
+              lines.push('', '#### Top findings', '', ...top);
+            }
+            if (report.findings.length > 25) {
+              lines.push('', `_…and ${report.findings.length - 25} more — see the uploaded artifact._`);
+            }
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: lines.join('\n'),
+            });
+
+      - name: Fail if score below threshold
+        run: |
+          score=$(jq -r '.score' doctor-report.json)
+          echo "Health score: $score"
+          [ "$score" -ge 80 ]
