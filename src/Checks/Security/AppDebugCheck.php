@@ -28,7 +28,7 @@ final class AppDebugCheck implements Check
 
     public function description(): string
     {
-        return 'Risky APP_DEBUG / APP_ENV / APP_KEY combinations in .env files.';
+        return 'Combinaciones riesgosas de APP_DEBUG / APP_ENV / APP_KEY en .env.';
     }
 
     public function run(CheckContext $context): array
@@ -48,9 +48,9 @@ final class AppDebugCheck implements Check
                     checkId: $this->id(),
                     category: $this->category(),
                     severity: Severity::CRITICAL,
-                    message: 'APP_DEBUG=true while APP_ENV=production — stack traces will leak secrets.',
+                    message: 'APP_DEBUG=true con APP_ENV=production — los stack traces filtrarán secretos.',
                     file: '.env',
-                    suggestion: 'Set APP_DEBUG=false in production environments.',
+                    suggestion: 'Pon APP_DEBUG=false en ambientes productivos.',
                 );
             }
             if ($appKey === '' || $appKey === 'SomeRandomString') {
@@ -58,9 +58,9 @@ final class AppDebugCheck implements Check
                     checkId: $this->id(),
                     category: $this->category(),
                     severity: Severity::CRITICAL,
-                    message: 'APP_KEY is empty or placeholder — encryption, sessions and signed URLs will be insecure.',
+                    message: 'APP_KEY está vacío o tiene un valor placeholder — encriptación, sesiones y URLs firmadas serán inseguras.',
                     file: '.env',
-                    suggestion: 'Run `php artisan key:generate` to create a strong APP_KEY.',
+                    suggestion: 'Ejecuta `php artisan key:generate` para generar un APP_KEY robusto.',
                 );
             }
         }
@@ -70,9 +70,9 @@ final class AppDebugCheck implements Check
                 checkId: $this->id(),
                 category: $this->category(),
                 severity: Severity::LOW,
-                message: '.env.example is missing — onboarding new contributors will be harder.',
+                message: 'Falta .env.example — dificulta el onboarding de nuevos colaboradores.',
                 file: '.env.example',
-                suggestion: 'Commit a sanitized .env.example with no secrets.',
+                suggestion: 'Sube al repo un .env.example saneado, sin secretos.',
             );
         }
 

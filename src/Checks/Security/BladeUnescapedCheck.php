@@ -28,7 +28,7 @@ final class BladeUnescapedCheck implements Check
 
     public function description(): string
     {
-        return 'Blade {!! !!} bypasses HTML escaping and can lead to XSS.';
+        return 'Blade {!! !!} omite el escapado de HTML y puede causar XSS.';
     }
 
     public function run(CheckContext $context): array
@@ -51,10 +51,10 @@ final class BladeUnescapedCheck implements Check
                         checkId: $this->id(),
                         category: $this->category(),
                         severity: Severity::HIGH,
-                        message: 'Unescaped Blade output: {!! ' . self::truncate($expr) . ' !!}',
+                        message: 'Salida Blade sin escapar: {!! ' . self::truncate($expr) . ' !!}',
                         file: $context->relativePath($file->getRealPath()),
                         line: $line,
-                        suggestion: 'Use {{ $var }} to escape output, or wrap trusted HTML in a dedicated component/cast.',
+                        suggestion: 'Usa {{ $var }} para escapar la salida, o envuelve el HTML confiable en un componente/cast dedicado (ej. HTMLPurifier).',
                     );
                 }
             }

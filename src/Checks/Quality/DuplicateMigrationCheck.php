@@ -29,7 +29,7 @@ final class DuplicateMigrationCheck implements Check
 
     public function description(): string
     {
-        return 'Multiple migrations create the same table — likely a duplicate or merge artifact.';
+        return 'Múltiples migraciones crean la misma tabla — posible duplicado o artefacto de merge.';
     }
 
     public function run(CheckContext $context): array
@@ -60,9 +60,9 @@ final class DuplicateMigrationCheck implements Check
                     checkId: $this->id(),
                     category: $this->category(),
                     severity: Severity::MEDIUM,
-                    message: 'Table "' . $table . '" is created in ' . count($files) . ' migrations: ' . implode(', ', $files),
+                    message: 'La tabla "' . $table . '" se crea en ' . count($files) . ' migraciones: ' . implode(', ', $files),
                     file: $files[0],
-                    suggestion: 'Consolidate into a single Schema::create migration and use Schema::table to modify in later migrations.',
+                    suggestion: 'Consolida en una sola migración Schema::create y usa Schema::table en las migraciones posteriores para modificarla.',
                 );
             }
         }

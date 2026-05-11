@@ -28,7 +28,7 @@ final class DisabledTlsVerifyCheck implements Check
 
     public function description(): string
     {
-        return 'Disabling TLS verification exposes outgoing HTTP calls to MITM attacks.';
+        return 'Desactivar la verificación TLS expone las llamadas HTTP salientes a ataques MITM.';
     }
 
     public function run(CheckContext $context): array
@@ -55,10 +55,10 @@ final class DisabledTlsVerifyCheck implements Check
                                 checkId: $this->id(),
                                 category: $this->category(),
                                 severity: Severity::HIGH,
-                                message: 'TLS verification disabled: ' . trim($m[0]),
+                                message: 'Verificación TLS deshabilitada: ' . trim($m[0]),
                                 file: $context->relativePath($file->getRealPath()),
                                 line: $line,
-                                suggestion: 'Remove the override or install the proper CA bundle. Never ship TLS verification disabled.',
+                                suggestion: 'Elimina la sobreescritura o instala el bundle CA correcto. Nunca despliegues con verificación TLS deshabilitada.',
                                 snippet: LineLocator::snippetAround($contents, $m[1]),
                             );
                         }

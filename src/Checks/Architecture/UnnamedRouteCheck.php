@@ -30,7 +30,7 @@ final class UnnamedRouteCheck implements Check
 
     public function description(): string
     {
-        return 'Routes without ->name() cannot be referenced by route() and tend to break silently.';
+        return 'Rutas sin ->name() no pueden referenciarse con route() y se rompen silenciosamente.';
     }
 
     public function run(CheckContext $context): array
@@ -70,10 +70,10 @@ final class UnnamedRouteCheck implements Check
                     checkId: $this->id(),
                     category: $this->category(),
                     severity: Severity::LOW,
-                    message: 'Route definition without ->name().',
+                    message: 'Definición de ruta sin ->name().',
                     file: $context->relativePath($file->getRealPath()),
                     line: $line,
-                    suggestion: 'Append ->name(\'descriptive.name\') so route() / signed URLs work.',
+                    suggestion: 'Agrega ->name(\'nombre.descriptivo\') para que funcionen route() y las URLs firmadas.',
                     snippet: LineLocator::snippetAround($contents, $offset),
                 );
             }

@@ -29,7 +29,7 @@ final class RequestAllToFillCheck implements Check
 
     public function description(): string
     {
-        return 'Passing $request->all() into create()/update()/fill() bypasses input filtering.';
+        return 'Pasar $request->all() a create()/update()/fill() omite el filtrado de entrada.';
     }
 
     public function run(CheckContext $context): array
@@ -49,10 +49,10 @@ final class RequestAllToFillCheck implements Check
                         checkId: $this->id(),
                         category: $this->category(),
                         severity: Severity::HIGH,
-                        message: 'Mass assignment from $request->all(): ' . trim($m[0]),
+                        message: 'Asignación masiva desde $request->all(): ' . trim($m[0]),
                         file: $context->relativePath($file->getRealPath()),
                         line: $line,
-                        suggestion: 'Use $request->validated() (FormRequest) or $request->only([...]) to filter input.',
+                        suggestion: 'Usa $request->validated() (FormRequest) o $request->only([...]) para filtrar la entrada.',
                         snippet: LineLocator::snippetAround($contents, $m[1]),
                     );
                 }

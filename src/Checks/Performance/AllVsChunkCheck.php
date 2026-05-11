@@ -29,7 +29,7 @@ final class AllVsChunkCheck implements Check
 
     public function description(): string
     {
-        return 'Model::all() / unbounded ->get() may load the whole table into memory.';
+        return 'Model::all() / ->get() sin límite puede cargar toda la tabla en memoria.';
     }
 
     public function run(CheckContext $context): array
@@ -52,10 +52,10 @@ final class AllVsChunkCheck implements Check
                         checkId: $this->id(),
                         category: $this->category(),
                         severity: Severity::MEDIUM,
-                        message: $matches[1][$i][0] . '::all() loads the entire table into memory.',
+                        message: $matches[1][$i][0] . '::all() carga la tabla completa en memoria.',
                         file: $rel,
                         line: $line,
-                        suggestion: 'Use ->chunk(N, ...) / lazy() / cursor() / paginate() depending on use case.',
+                        suggestion: 'Usa ->chunk(N, ...) / lazy() / cursor() / paginate() según tu caso de uso.',
                         snippet: LineLocator::snippetAround($contents, $m[1]),
                     );
                 }

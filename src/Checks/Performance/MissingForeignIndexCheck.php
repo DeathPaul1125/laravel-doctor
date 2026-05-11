@@ -30,7 +30,7 @@ final class MissingForeignIndexCheck implements Check
 
     public function description(): string
     {
-        return 'Foreign-key columns without an index will scan the whole table on every join.';
+        return 'Columnas de llave foránea sin índice escanean toda la tabla en cada JOIN.';
     }
 
     public function run(CheckContext $context): array
@@ -66,10 +66,10 @@ final class MissingForeignIndexCheck implements Check
                         checkId: $this->id(),
                         category: $this->category(),
                         severity: Severity::MEDIUM,
-                        message: 'Column ' . $col . ' is likely a foreign key but has no index.',
+                        message: 'La columna ' . $col . ' parece ser una llave foránea pero no tiene índice.',
                         file: $rel,
                         line: $line,
-                        suggestion: 'Append ->index() or use $table->foreignId(\'' . $col . '\')->constrained().',
+                        suggestion: 'Encadena ->index() o usa $table->foreignId(\'' . $col . '\')->constrained().',
                         snippet: LineLocator::snippetAround($contents, $m[1]),
                     );
                 }

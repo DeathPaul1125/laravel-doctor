@@ -29,7 +29,7 @@ final class ConsoleReporter
         $this->output->writeln('');
 
         if (empty($findings)) {
-            $this->output->writeln('  <fg=green;options=bold>✓ No issues found.</>');
+            $this->output->writeln('  <fg=green;options=bold>✓ No se encontraron problemas.</>');
             $this->renderScore($score, $grade);
             return;
         }
@@ -59,7 +59,7 @@ final class ConsoleReporter
         }
         $known = is_array($result['knownFindings'] ?? null) ? count($result['knownFindings']) : 0;
         $this->output->writeln(sprintf(
-            '  <fg=gray>baseline: %d known issues hidden (%d still present)</>',
+            '  <fg=gray>baseline: %d problemas conocidos ocultos (%d aún presentes)</>',
             $result['baselineCount'],
             $known
         ));
@@ -69,7 +69,13 @@ final class ConsoleReporter
     /** @param Finding[] $items */
     private function renderCategory(string $category, array $items): void
     {
-        $title = strtoupper($category);
+        $title = match ($category) {
+            'security' => 'SEGURIDAD',
+            'performance' => 'RENDIMIENTO',
+            'architecture' => 'ARQUITECTURA',
+            'quality' => 'CALIDAD',
+            default => strtoupper($category),
+        };
         $this->output->writeln(sprintf('  <fg=white;options=bold>%s</> <fg=gray>(%d)</>', $title, count($items)));
         $this->output->writeln('  <fg=gray>' . str_repeat('─', 60) . '</>');
 
@@ -77,7 +83,13 @@ final class ConsoleReporter
 
         foreach ($items as $f) {
             $color = Severity::color($f->severity);
-            $sev = strtoupper($f->severity);
+            $sev = match ($f->severity) {
+                'critical' => 'CRITICO',
+                'high' => 'ALTO',
+                'medium' => 'MEDIO',
+                'low' => 'BAJO',
+                default => strtoupper($f->severity),
+            };
             $location = $f->file . ($f->line ? ':' . $f->line : '');
             $this->output->writeln(sprintf('  <fg=%s;options=bold>%-8s</> <fg=gray>%s</>', $color, $sev, $f->checkId));
             $this->output->writeln('    ' . $f->message);
@@ -101,14 +113,14 @@ final class ConsoleReporter
             default => 'white',
         };
         $label = match ($grade) {
-            'great' => 'GREAT',
-            'needs-work' => 'NEEDS WORK',
-            'critical' => 'CRITICAL',
+            'great' => 'EXCELENTE',
+            'needs-work' => 'NECESITA TRABAJO',
+            'critical' => 'CRÍTICO',
             default => '',
         };
         $this->output->writeln('  <fg=gray>' . str_repeat('═', 60) . '</>');
         $this->output->writeln(sprintf(
-            '  <options=bold>Health score:</> <fg=%s;options=bold>%d/100</> <fg=%s>(%s)</>',
+            '  <options=bold>Puntuación de salud:</> <fg=%s;options=bold>%d/100</> <fg=%s>(%s)</>',
             $color,
             $score,
             $color,
@@ -119,12 +131,18 @@ final class ConsoleReporter
     /** @param array<string,int> $byCategory */
     private function renderSummaryByCategory(array $byCategory): void
     {
+        $labels = [
+            'security' => 'seguridad',
+            'performance' => 'rendimiento',
+            'architecture' => 'arquitectura',
+            'quality' => 'calidad',
+        ];
         $parts = [];
         foreach ($byCategory as $cat => $count) {
             if ($count === 0) {
                 continue;
             }
-            $parts[] = sprintf('%s: %d', $cat, $count);
+            $parts[] = sprintf('%s: %d', $labels[$cat] ?? $cat, $count);
         }
         if (!empty($parts)) {
             $this->output->writeln('  <fg=gray>' . implode(' · ', $parts) . '</>');

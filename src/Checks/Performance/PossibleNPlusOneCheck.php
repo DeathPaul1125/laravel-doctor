@@ -30,7 +30,7 @@ final class PossibleNPlusOneCheck implements Check
 
     public function description(): string
     {
-        return 'Loops that lazy-load relations on each iteration cause N+1 queries.';
+        return 'Loops que cargan relaciones de forma perezosa en cada iteración generan consultas N+1.';
     }
 
     public function run(CheckContext $context): array
@@ -54,10 +54,10 @@ final class PossibleNPlusOneCheck implements Check
                             checkId: $this->id(),
                             category: $this->category(),
                             severity: Severity::MEDIUM,
-                            message: 'Possible N+1 in @foreach: chained relation access on $' . $itemVar . ' inside the loop.',
+                            message: 'Posible N+1 en @foreach: acceso encadenado a relaciones de $' . $itemVar . ' dentro del loop.',
                             file: $context->relativePath($file->getRealPath()),
                             line: $line,
-                            suggestion: 'Eager-load with ->with([\'relation\']) on the source query, or pre-load via $collection->load(...).',
+                            suggestion: 'Aplica eager-loading con ->with([\'relacion\']) en el query origen, o precarga con $coleccion->load(...).',
                         );
                     }
                 }
@@ -81,10 +81,10 @@ final class PossibleNPlusOneCheck implements Check
                             checkId: $this->id(),
                             category: $this->category(),
                             severity: Severity::MEDIUM,
-                            message: 'Possible N+1: chained relation access on $' . $itemVar . ' inside foreach.',
+                            message: 'Posible N+1: acceso encadenado a relaciones de $' . $itemVar . ' dentro de foreach.',
                             file: $context->relativePath($file->getRealPath()),
                             line: $line,
-                            suggestion: 'Eager-load the relation with ->with([...]) or call ->load([...]) before the loop.',
+                            suggestion: 'Aplica eager-loading con ->with([...]) o llama a ->load([...]) antes del loop.',
                         );
                     }
                 }

@@ -41,9 +41,9 @@ final class HtmlReporter
             default => '#6b7280',
         };
         $gradeLabel = match ($grade) {
-            'great' => 'GREAT',
-            'needs-work' => 'NEEDS WORK',
-            'critical' => 'CRITICAL',
+            'great' => 'EXCELENTE',
+            'needs-work' => 'NECESITA TRABAJO',
+            'critical' => 'CRÍTICO',
             default => '',
         };
 
@@ -143,14 +143,14 @@ footer { margin-top: 32px; padding-top: 16px; border-top: 1px solid var(--border
                 <div class="sub">{$project}</div>
             </div>
         </div>
-        <div class="meta">Generated {$generated}</div>
+        <div class="meta">Generado el {$generated}</div>
     </header>
 
     <div class="cards">
         <div class="card score">
             <div class="num">{$score}<span style="font-size: 32px; color: var(--fg-muted);">/100</span></div>
             <div class="grade">{$gradeLabel}</div>
-            <div class="label">HEALTH SCORE</div>
+            <div class="label">PUNTUACIÓN DE SALUD</div>
             {$this->baselineNotice($baselineCount)}
         </div>
         <div class="card">
@@ -159,23 +159,23 @@ footer { margin-top: 32px; padding-top: 16px; border-top: 1px solid var(--border
     </div>
 
     <div class="filters">
-        <button class="filter-btn active" data-filter="cat" data-value="all">All</button>
-        <button class="filter-btn" data-filter="cat" data-value="security">Security</button>
-        <button class="filter-btn" data-filter="cat" data-value="performance">Performance</button>
-        <button class="filter-btn" data-filter="cat" data-value="architecture">Architecture</button>
-        <button class="filter-btn" data-filter="cat" data-value="quality">Quality</button>
+        <button class="filter-btn active" data-filter="cat" data-value="all">Todas</button>
+        <button class="filter-btn" data-filter="cat" data-value="security">Seguridad</button>
+        <button class="filter-btn" data-filter="cat" data-value="performance">Rendimiento</button>
+        <button class="filter-btn" data-filter="cat" data-value="architecture">Arquitectura</button>
+        <button class="filter-btn" data-filter="cat" data-value="quality">Calidad</button>
         <span style="width: 16px;"></span>
-        <button class="filter-btn sev-critical" data-filter="sev" data-value="critical">Critical</button>
-        <button class="filter-btn sev-high" data-filter="sev" data-value="high">High</button>
-        <button class="filter-btn sev-medium" data-filter="sev" data-value="medium">Medium</button>
-        <button class="filter-btn sev-low" data-filter="sev" data-value="low">Low</button>
-        <input type="text" class="search" id="search" placeholder="Filter by file, message or check id…">
+        <button class="filter-btn sev-critical" data-filter="sev" data-value="critical">Crítico</button>
+        <button class="filter-btn sev-high" data-filter="sev" data-value="high">Alto</button>
+        <button class="filter-btn sev-medium" data-filter="sev" data-value="medium">Medio</button>
+        <button class="filter-btn sev-low" data-filter="sev" data-value="low">Bajo</button>
+        <input type="text" class="search" id="search" placeholder="Filtrar por archivo, mensaje o check id…">
     </div>
 
     <div class="findings" id="findings"></div>
 
     <footer>
-        Laravel Doctor · {$generated} · Inspired by react-doctor
+        Laravel Doctor · {$generated} · Inspirado en react-doctor
     </footer>
 </div>
 
@@ -184,11 +184,13 @@ const findings = {$findingsJson};
 const byCategory = {$byCategoryJson};
 
 const catColors = { security: '#ef4444', performance: '#f59e0b', architecture: '#8b5cf6', quality: '#06b6d4' };
+const catLabels = { security: 'seguridad', performance: 'rendimiento', architecture: 'arquitectura', quality: 'calidad' };
+const sevLabels = { critical: 'crítico', high: 'alto', medium: 'medio', low: 'bajo' };
 const catsEl = document.getElementById('cats');
 for (const [cat, count] of Object.entries(byCategory)) {
     const box = document.createElement('div');
     box.className = 'cat-box';
-    box.innerHTML = `<div class="num" style="color:\${catColors[cat]||'#fff'}">\${count}</div><div class="label">\${cat}</div>`;
+    box.innerHTML = `<div class="num" style="color:\${catColors[cat]||'#fff'}">\${count}</div><div class="label">\${catLabels[cat]||cat}</div>`;
     catsEl.appendChild(box);
 }
 
@@ -208,15 +210,15 @@ function render() {
         return true;
     });
     if (!filtered.length) {
-        root.innerHTML = '<div class="empty"><div class="icon">🎉</div>No findings match this filter.</div>';
+        root.innerHTML = '<div class="empty"><div class="icon">🎉</div>Ningún hallazgo coincide con este filtro.</div>';
         return;
     }
     root.innerHTML = filtered.map(f => `
         <div class="finding sev-\${f.severity}">
             <div class="finding-head">
-                <span class="badge sev-\${f.severity}">\${f.severity}</span>
+                <span class="badge sev-\${f.severity}">\${sevLabels[f.severity]||f.severity}</span>
                 <span class="check-id">\${escapeHtml(f.check)}</span>
-                <span class="category-pill">\${escapeHtml(f.category)}</span>
+                <span class="category-pill">\${catLabels[f.category]||f.category}</span>
             </div>
             <div class="finding-msg">\${escapeHtml(f.message)}</div>
             <div class="finding-loc">→ \${escapeHtml(f.file)}\${f.line ? ':' + f.line : ''}</div>
@@ -254,6 +256,6 @@ HTML;
         if ($count === 0) {
             return '';
         }
-        return '<div class="label" style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border);">' . $count . ' known findings hidden via baseline</div>';
+        return '<div class="label" style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border);">' . $count . ' hallazgos conocidos ocultos por baseline</div>';
     }
 }

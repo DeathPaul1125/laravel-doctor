@@ -31,7 +31,7 @@ final class RawQueryCheck implements Check
 
     public function description(): string
     {
-        return 'Raw SQL with concatenated/interpolated variables risks SQL injection.';
+        return 'SQL crudo con variables concatenadas/interpoladas: riesgo de inyección SQL.';
     }
 
     public function run(CheckContext $context): array
@@ -66,10 +66,10 @@ final class RawQueryCheck implements Check
                         checkId: $this->id(),
                         category: $this->category(),
                         severity: Severity::CRITICAL,
-                        message: 'Raw SQL appears to interpolate or concatenate a variable.',
+                        message: 'SQL crudo que aparenta interpolar o concatenar una variable.',
                         file: $context->relativePath($file->getRealPath()),
                         line: $line,
-                        suggestion: 'Use parameter bindings: whereRaw("col = ?", [$value]) instead of string concatenation.',
+                        suggestion: 'Usa parameter bindings: whereRaw("col = ?", [$value]) en lugar de concatenar strings.',
                         snippet: LineLocator::snippetAround($contents, $offset),
                     );
                 }

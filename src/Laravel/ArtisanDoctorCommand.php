@@ -16,15 +16,15 @@ use LaravelDoctor\Doctor;
 final class ArtisanDoctorCommand extends Command
 {
     protected $signature = 'doctor
-        {path? : Path to the Laravel project root (defaults to base_path()).}
-        {--json : Emit JSON instead of human output.}
-        {--min-score=0 : Fail when the health score is below this threshold.}
-        {--category= : Run only checks of a given category.}
-        {--baseline : Use .laravel-doctor.baseline.json — only new findings count.}
-        {--update-baseline : Snapshot current findings as the new baseline and exit.}
-        {--html= : Write an interactive HTML report to the given path.}';
+        {path? : Ruta a la raíz del proyecto Laravel (por defecto base_path()).}
+        {--json : Emite JSON en lugar de salida legible.}
+        {--min-score=0 : Falla cuando la puntuación es menor a este umbral.}
+        {--category= : Ejecuta solo los checks de una categoría.}
+        {--baseline : Usa .laravel-doctor.baseline.json — solo cuentan los hallazgos nuevos.}
+        {--update-baseline : Guarda los hallazgos actuales como nuevo baseline y sale.}
+        {--html= : Genera un reporte HTML interactivo en la ruta indicada.}';
 
-    protected $description = 'Diagnose this Laravel project (security, performance, architecture, quality).';
+    protected $description = 'Diagnostica este proyecto Laravel (seguridad, rendimiento, arquitectura, calidad).';
 
     public function handle(): int
     {
@@ -39,7 +39,7 @@ final class ArtisanDoctorCommand extends Command
         if ($category) {
             $checks = array_values(array_filter($checks, fn ($c) => $c->category() === $category));
             if (empty($checks)) {
-                $this->error('Unknown category: ' . $category);
+                $this->error('Categoría desconocida: ' . $category);
                 return self::FAILURE;
             }
         }
@@ -50,7 +50,7 @@ final class ArtisanDoctorCommand extends Command
 
         if (!$isJson) {
             $this->getOutput()->writeln('');
-            $this->getOutput()->writeln('  <fg=cyan>Running ' . count($checks) . ' checks…</>');
+            $this->getOutput()->writeln('  <fg=cyan>Ejecutando ' . count($checks) . ' checks…</>');
         }
 
         $doctor = new Doctor($checks);
@@ -69,7 +69,7 @@ final class ArtisanDoctorCommand extends Command
             $allResult = $doctor->diagnose($context, null, $config, null);
             $count = Baseline::write($absolute, $allResult['findings']);
             $this->getOutput()->writeln('');
-            $this->getOutput()->writeln('  <fg=green>✓ Baseline updated: ' . $count . ' findings recorded.</>');
+            $this->getOutput()->writeln('  <fg=green>✓ Baseline actualizado: ' . $count . ' hallazgos registrados.</>');
             $this->getOutput()->writeln('  <fg=gray>→ ' . Baseline::path($absolute) . '</>');
             return self::SUCCESS;
         }
@@ -81,7 +81,7 @@ final class ArtisanDoctorCommand extends Command
                 : rtrim($absolute, '/\\') . DIRECTORY_SEPARATOR . $htmlPath;
             (new HtmlReporter())->render($result, $absolute, $resolved);
             $this->getOutput()->writeln('');
-            $this->getOutput()->writeln('  <fg=green>✓ HTML report written:</> ' . $resolved);
+            $this->getOutput()->writeln('  <fg=green>✓ Reporte HTML generado:</> ' . $resolved);
         }
 
         if ($isJson) {

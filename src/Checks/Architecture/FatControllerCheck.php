@@ -31,7 +31,7 @@ final class FatControllerCheck implements Check
 
     public function description(): string
     {
-        return 'Controllers larger than ~250 LOC or with methods >60 LOC suggest misplaced business logic.';
+        return 'Controllers con más de ~250 líneas o métodos >60 líneas suelen tener lógica de negocio mal ubicada.';
     }
 
     public function run(CheckContext $context): array
@@ -50,10 +50,10 @@ final class FatControllerCheck implements Check
                     checkId: $this->id(),
                     category: $this->category(),
                     severity: Severity::MEDIUM,
-                    message: 'Controller has ' . $totalLines . ' lines (>' . self::FILE_LOC_THRESHOLD . ').',
+                    message: 'El controller tiene ' . $totalLines . ' líneas (>' . self::FILE_LOC_THRESHOLD . ').',
                     file: $rel,
                     line: 1,
-                    suggestion: 'Extract business logic into Service classes, Actions, or Form Requests.',
+                    suggestion: 'Extrae la lógica de negocio a clases Service, Actions o Form Requests.',
                 );
             }
 
@@ -102,10 +102,10 @@ final class FatControllerCheck implements Check
                                 checkId: $this->id(),
                                 category: $this->category(),
                                 severity: Severity::MEDIUM,
-                                message: 'Method ' . $name . '() has ' . $methodLoc . ' lines (>' . self::METHOD_LOC_THRESHOLD . ').',
+                                message: 'El método ' . $name . '() tiene ' . $methodLoc . ' líneas (>' . self::METHOD_LOC_THRESHOLD . ').',
                                 file: $rel,
                                 line: $startLine,
-                                suggestion: 'Split the method, extract a Service/Action, or move validation to a FormRequest.',
+                                suggestion: 'Divide el método, extrae un Service/Action, o mueve la validación a un FormRequest.',
                             );
                         }
                     }

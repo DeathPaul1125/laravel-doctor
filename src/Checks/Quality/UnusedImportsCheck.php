@@ -27,7 +27,7 @@ final class UnusedImportsCheck implements Check
 
     public function description(): string
     {
-        return 'use statements not referenced in the file body.';
+        return 'Sentencias use no referenciadas en el cuerpo del archivo.';
     }
 
     public function run(CheckContext $context): array
@@ -78,10 +78,10 @@ final class UnusedImportsCheck implements Check
                             checkId: $this->id(),
                             category: $this->category(),
                             severity: Severity::LOW,
-                            message: 'Unused import: ' . $short,
+                            message: 'Import sin usar: ' . $short,
                             file: $context->relativePath($file->getRealPath()),
                             line: $line,
-                            suggestion: 'Remove the unused use statement.',
+                            suggestion: 'Elimina la sentencia use que no se usa.',
                         );
                     }
                 }

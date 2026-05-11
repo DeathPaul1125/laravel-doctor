@@ -28,7 +28,7 @@ final class ValidationInControllerCheck implements Check
 
     public function description(): string
     {
-        return 'Controllers performing $request->validate() / Validator::make inline would be cleaner as FormRequests.';
+        return 'Controllers con $request->validate() / Validator::make inline quedarían más limpios usando FormRequests.';
     }
 
     public function run(CheckContext $context): array
@@ -48,10 +48,10 @@ final class ValidationInControllerCheck implements Check
                         checkId: $this->id(),
                         category: $this->category(),
                         severity: Severity::LOW,
-                        message: 'Inline validation in controller (' . trim($m[0], '(') . ').',
+                        message: 'Validación inline en el controller (' . trim($m[0], '(') . ').',
                         file: $context->relativePath($file->getRealPath()),
                         line: $line,
-                        suggestion: 'Create a FormRequest with `php artisan make:request` and type-hint it on the action.',
+                        suggestion: 'Crea un FormRequest con `php artisan make:request` y declárelo como type-hint en la acción.',
                     );
                 }
             }

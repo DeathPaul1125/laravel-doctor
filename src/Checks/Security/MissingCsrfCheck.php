@@ -28,7 +28,7 @@ final class MissingCsrfCheck implements Check
 
     public function description(): string
     {
-        return 'Blade forms with method != GET should include @csrf to prevent CSRF attacks.';
+        return 'Formularios Blade con método distinto de GET deben incluir @csrf para prevenir ataques CSRF.';
     }
 
     public function run(CheckContext $context): array
@@ -57,10 +57,10 @@ final class MissingCsrfCheck implements Check
                     checkId: $this->id(),
                     category: $this->category(),
                     severity: Severity::HIGH,
-                    message: '<form method="' . strtoupper($method) . '"> without @csrf — endpoint is vulnerable to CSRF.',
+                    message: '<form method="' . strtoupper($method) . '"> sin @csrf — endpoint vulnerable a CSRF.',
                     file: $context->relativePath($file->getRealPath()),
                     line: $line,
-                    suggestion: 'Add @csrf as the first child of the <form>.',
+                    suggestion: 'Agrega @csrf como primer hijo dentro del <form>.',
                 );
             }
         }

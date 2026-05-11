@@ -29,7 +29,7 @@ final class EnvOutsideConfigCheck implements Check
 
     public function description(): string
     {
-        return 'env() calls outside config/ break config caching in production.';
+        return 'Llamadas a env() fuera de config/ rompen el cacheo de configuración en producción.';
     }
 
     public function run(CheckContext $context): array
@@ -56,10 +56,10 @@ final class EnvOutsideConfigCheck implements Check
                         checkId: $this->id(),
                         category: $this->category(),
                         severity: Severity::MEDIUM,
-                        message: 'env() called outside of config/ — returns null after `config:cache`.',
+                        message: 'env() llamado fuera de config/ — devolverá null tras `config:cache`.',
                         file: $context->relativePath($file->getRealPath()),
                         line: $line,
-                        suggestion: 'Move the env() call into a config/*.php file and use config(\'key\') here.',
+                        suggestion: 'Mueve la llamada a env() a un archivo config/*.php y usa config(\'clave\') aquí.',
                         snippet: LineLocator::snippetAround($contents, $offset),
                     );
                 }

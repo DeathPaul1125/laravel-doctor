@@ -28,7 +28,7 @@ final class MassAssignmentCheck implements Check
 
     public function description(): string
     {
-        return 'Eloquent models without $fillable or $guarded are vulnerable to mass assignment.';
+        return 'Modelos Eloquent sin $fillable o $guarded son vulnerables a asignación masiva.';
     }
 
     public function run(CheckContext $context): array
@@ -57,10 +57,10 @@ final class MassAssignmentCheck implements Check
                 checkId: $this->id(),
                 category: $this->category(),
                 severity: Severity::HIGH,
-                message: 'Model is missing $fillable or $guarded declaration.',
+                message: 'El modelo no declara $fillable ni $guarded.',
                 file: $context->relativePath($file->getRealPath()),
                 line: 1,
-                suggestion: 'Declare protected $fillable = [...] or protected $guarded = [] to control mass-assignable attributes.',
+                suggestion: 'Declara protected $fillable = [...] o protected $guarded = [] para controlar los atributos asignables masivamente.',
             );
         }
 
@@ -78,10 +78,10 @@ final class MassAssignmentCheck implements Check
                     checkId: $this->id(),
                     category: $this->category(),
                     severity: Severity::HIGH,
-                    message: 'Model is missing $fillable or $guarded declaration.',
+                    message: 'El modelo no declara $fillable ni $guarded.',
                     file: $context->relativePath($file->getRealPath()),
                     line: 1,
-                    suggestion: 'Declare protected $fillable = [...] or protected $guarded = [].',
+                    suggestion: 'Declara protected $fillable = [...] o protected $guarded = [].',
                 );
             }
         }

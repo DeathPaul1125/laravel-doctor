@@ -30,7 +30,7 @@ final class ClosureRouteCheck implements Check
 
     public function description(): string
     {
-        return 'Closure-based routes cannot be cached by `php artisan route:cache`.';
+        return 'Rutas basadas en closure no pueden cachearse con `php artisan route:cache`.';
     }
 
     public function run(CheckContext $context): array
@@ -55,10 +55,10 @@ final class ClosureRouteCheck implements Check
                         checkId: $this->id(),
                         category: $this->category(),
                         severity: Severity::LOW,
-                        message: 'Route uses a closure — prevents `route:cache`.',
+                        message: 'La ruta usa un closure — impide `route:cache`.',
                         file: $context->relativePath($file->getRealPath()),
                         line: $line,
-                        suggestion: 'Move the action to a controller (e.g. [SomeController::class, \'index\']).',
+                        suggestion: 'Mueve la acción a un controller (ej. [AlgunController::class, \'index\']).',
                         snippet: LineLocator::snippetAround($contents, $m[1]),
                     );
                 }

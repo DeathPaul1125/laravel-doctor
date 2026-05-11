@@ -28,7 +28,7 @@ final class MigrationDownCheck implements Check
 
     public function description(): string
     {
-        return 'Migrations with empty/throwing down() cannot be rolled back safely.';
+        return 'Migraciones con down() vacío o que lanza excepción no se pueden revertir con seguridad.';
     }
 
     public function run(CheckContext $context): array
@@ -50,10 +50,10 @@ final class MigrationDownCheck implements Check
                     checkId: $this->id(),
                     category: $this->category(),
                     severity: Severity::LOW,
-                    message: 'Migration has no down() method.',
+                    message: 'La migración no tiene método down().',
                     file: $context->relativePath($file->getRealPath()),
                     line: 1,
-                    suggestion: 'Implement down() so the migration is reversible.',
+                    suggestion: 'Implementa down() para que la migración sea reversible.',
                 );
                 continue;
             }
@@ -63,10 +63,10 @@ final class MigrationDownCheck implements Check
                     checkId: $this->id(),
                     category: $this->category(),
                     severity: Severity::LOW,
-                    message: 'Migration down() body is empty.',
+                    message: 'El método down() de la migración está vacío.',
                     file: $context->relativePath($file->getRealPath()),
                     line: 1,
-                    suggestion: 'Implement down() (e.g. Schema::dropIfExists(...)).',
+                    suggestion: 'Implementa down() (ej. Schema::dropIfExists(...)).',
                 );
             }
         }

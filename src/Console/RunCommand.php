@@ -23,15 +23,15 @@ final class RunCommand extends Command
     {
         $this
             ->setName('run')
-            ->setDescription('Diagnose a Laravel project for security, performance, architecture and quality issues.')
-            ->addArgument('path', InputArgument::OPTIONAL, 'Path to the Laravel project root.', '.')
-            ->addOption('json', null, InputOption::VALUE_NONE, 'Emit JSON instead of human output.')
-            ->addOption('min-score', null, InputOption::VALUE_REQUIRED, 'Fail (exit 1) when the health score is below this threshold.', '0')
-            ->addOption('category', null, InputOption::VALUE_REQUIRED, 'Run only checks of a given category (security|performance|architecture|quality).')
-            ->addOption('no-progress', null, InputOption::VALUE_NONE, 'Disable the progress indicator (auto-disabled with --json).')
-            ->addOption('baseline', null, InputOption::VALUE_NONE, 'Use .laravel-doctor.baseline.json — only new findings count.')
-            ->addOption('update-baseline', null, InputOption::VALUE_NONE, 'Write the current findings into the baseline file and exit.')
-            ->addOption('html', null, InputOption::VALUE_REQUIRED, 'Write an interactive HTML report to the given path.');
+            ->setDescription('Diagnostica un proyecto Laravel: seguridad, rendimiento, arquitectura y calidad.')
+            ->addArgument('path', InputArgument::OPTIONAL, 'Ruta a la raíz del proyecto Laravel.', '.')
+            ->addOption('json', null, InputOption::VALUE_NONE, 'Emite JSON en lugar de salida legible.')
+            ->addOption('min-score', null, InputOption::VALUE_REQUIRED, 'Falla (exit 1) cuando la puntuación es menor a este umbral.', '0')
+            ->addOption('category', null, InputOption::VALUE_REQUIRED, 'Ejecuta solo los checks de una categoría (security|performance|architecture|quality).')
+            ->addOption('no-progress', null, InputOption::VALUE_NONE, 'Desactiva el indicador de progreso (se desactiva solo con --json).')
+            ->addOption('baseline', null, InputOption::VALUE_NONE, 'Usa .laravel-doctor.baseline.json — solo cuentan los hallazgos nuevos.')
+            ->addOption('update-baseline', null, InputOption::VALUE_NONE, 'Guarda los hallazgos actuales en el archivo baseline y sale.')
+            ->addOption('html', null, InputOption::VALUE_REQUIRED, 'Genera un reporte HTML interactivo en la ruta indicada.');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -39,13 +39,13 @@ final class RunCommand extends Command
         $path = (string) $input->getArgument('path');
         $absolute = realpath($path);
         if ($absolute === false || !is_dir($absolute)) {
-            $output->writeln('<error>Path not found: ' . $path . '</error>');
+            $output->writeln('<error>Ruta no encontrada: ' . $path . '</error>');
             return Command::FAILURE;
         }
 
         $context = new CheckContext($absolute);
         if (!$context->isLaravelProject()) {
-            $output->writeln('<comment>Warning: ' . $absolute . ' does not look like a Laravel project (missing artisan or composer.json). Continuing anyway.</comment>');
+            $output->writeln('<comment>Aviso: ' . $absolute . ' no parece ser un proyecto Laravel (falta artisan o composer.json). Se continúa de todos modos.</comment>');
         }
 
         $config = Config::loadFromProject($absolute);
@@ -54,7 +54,7 @@ final class RunCommand extends Command
         if ($category) {
             $checks = array_values(array_filter($checks, fn ($c) => $c->category() === $category));
             if (empty($checks)) {
-                $output->writeln('<error>Unknown category: ' . $category . '</error>');
+                $output->writeln('<error>Categoría desconocida: ' . $category . '</error>');
                 return Command::FAILURE;
             }
         }
@@ -66,7 +66,7 @@ final class RunCommand extends Command
 
         if ($showProgress) {
             $output->writeln('');
-            $output->writeln('  <fg=cyan>Running ' . count($checks) . ' checks…</>');
+            $output->writeln('  <fg=cyan>Ejecutando ' . count($checks) . ' checks…</>');
         }
 
         $doctor = new Doctor($checks);
@@ -88,7 +88,7 @@ final class RunCommand extends Command
             $allResult = $doctor->diagnose($context, null, $config, null);
             $count = Baseline::write($absolute, $allResult['findings']);
             $output->writeln('');
-            $output->writeln('  <fg=green>✓ Baseline updated: ' . $count . ' findings recorded.</>');
+            $output->writeln('  <fg=green>✓ Baseline actualizado: ' . $count . ' hallazgos registrados.</>');
             $output->writeln('  <fg=gray>→ ' . Baseline::path($absolute) . '</>');
             return Command::SUCCESS;
         }
@@ -98,7 +98,7 @@ final class RunCommand extends Command
             $htmlPath = $this->resolveHtmlPath((string) $htmlPath, $absolute);
             (new HtmlReporter())->render($result, $absolute, $htmlPath);
             $output->writeln('');
-            $output->writeln('  <fg=green>✓ HTML report written:</> ' . $htmlPath);
+            $output->writeln('  <fg=green>✓ Reporte HTML generado:</> ' . $htmlPath);
         }
 
         if ($isJson) {

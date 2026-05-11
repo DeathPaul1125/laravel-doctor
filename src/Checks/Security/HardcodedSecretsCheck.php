@@ -44,7 +44,7 @@ final class HardcodedSecretsCheck implements Check
 
     public function description(): string
     {
-        return 'Strings that look like API keys, tokens, private keys or password literals.';
+        return 'Strings que parecen API keys, tokens, llaves privadas o passwords literales.';
     }
 
     public function run(CheckContext $context): array
@@ -73,10 +73,10 @@ final class HardcodedSecretsCheck implements Check
                             checkId: $this->id(),
                             category: $this->category(),
                             severity: Severity::CRITICAL,
-                            message: 'Possible hard-coded secret (' . $name . ').',
+                            message: 'Posible secreto hardcodeado (' . $name . ').',
                             file: $rel,
                             line: $line,
-                            suggestion: 'Move the value to .env and reference it via env() in a config file.',
+                            suggestion: 'Mueve el valor a .env y referéncialo vía env() dentro de un archivo de configuración.',
                             snippet: $snippet,
                         );
                     }
