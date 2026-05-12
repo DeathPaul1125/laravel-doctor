@@ -8,43 +8,103 @@ Analizador estático que escanea un proyecto Laravel y reporta problemas en cuat
 - **50–74** → `needs-work` (necesita trabajo)
 - **<50** → `critical` (crítico)
 
+## Requisitos
+
+- PHP **8.1** o superior
+- Composer 2.x
+- Un proyecto Laravel (probado en Laravel 9, 10, 11)
+
 ## Instalación
 
+> El paquete aún no está publicado en Packagist, así que `composer require` directo no funciona. Estas son las dos formas que sí funcionan **hoy**.
+
+### Opción A — Desde GitHub (recomendada)
+
+En tu proyecto Laravel, agrega el repositorio al `composer.json`:
+
 ```bash
-composer require --dev deathpaul1125/laravel-doctor
+cd /ruta/a/tu/proyecto-laravel
+
+composer config repositories.laravel-doctor vcs https://github.com/DeathPaul1125/laravel-doctor
+composer require --dev deathpaul1125/laravel-doctor:^0.2
+```
+
+Composer hace clone del repo, instala las dependencias y deja el binario en `vendor/bin/laravel-doctor`. El `ServiceProvider` se auto-registra (Laravel Package Discovery).
+
+### Opción B — Desde un clon local
+
+Si ya tienes el repo en disco (ej. `c:\laragon\www\laravel-doctor`):
+
+```bash
+cd /ruta/a/tu/proyecto-laravel
+
+composer config repositories.laravel-doctor '{"type":"path","url":"c:/laragon/www/laravel-doctor","options":{"symlink":false}}'
+composer require --dev deathpaul1125/laravel-doctor:@dev
+```
+
+> `symlink: false` copia los archivos en `vendor/`. Si quieres que los cambios al paquete se reflejen al instante en el proyecto consumidor, usa `symlink: true`.
+
+### Opción C — Sin instalar (uso directo)
+
+Si solo quieres auditar un proyecto sin tocar su `composer.json`:
+
+```bash
+# Una sola vez: clonar e instalar dependencias del propio doctor
+git clone https://github.com/DeathPaul1125/laravel-doctor c:/laragon/www/laravel-doctor
+cd c:/laragon/www/laravel-doctor
+composer install
+
+# A partir de aquí, ejecutarlo contra cualquier proyecto:
+php c:/laragon/www/laravel-doctor/bin/laravel-doctor c:/laragon/www/mi-app
 ```
 
 ## Uso
 
-### Artisan (registrado automáticamente)
+### Comando Artisan (sólo con opción A o B)
+
+Cuando el paquete está instalado via Composer, el comando se registra automáticamente:
 
 ```bash
-php artisan doctor
-php artisan doctor --json
-php artisan doctor --category=security
-php artisan doctor --min-score=70       # CI: falla si la puntuación es menor a 70
-php artisan doctor --baseline           # solo cuenta los problemas nuevos
-php artisan doctor --update-baseline    # guarda el estado actual como referencia
-php artisan doctor --html=public/doctor.html   # genera reporte HTML interactivo
+php artisan doctor                              # diagnóstico completo
+php artisan doctor --json                       # salida JSON
+php artisan doctor --category=security          # solo seguridad
+php artisan doctor --min-score=70               # exit 1 si score < 70 (para CI)
+php artisan doctor --baseline                   # solo cuenta problemas nuevos
+php artisan doctor --update-baseline            # guarda estado actual como referencia
+php artisan doctor --html=public/doctor.html    # genera reporte HTML interactivo
 ```
 
-### CLI standalone
+### CLI standalone (cualquier opción)
 
 ```bash
+# Si lo instalaste con A o B (vendor/bin disponible en el proyecto)
 vendor/bin/laravel-doctor .
 vendor/bin/laravel-doctor . --json > doctor-report.json
-vendor/bin/laravel-doctor . --category=performance
-vendor/bin/laravel-doctor . --html=doctor-report.html   # HTML interactivo
+vendor/bin/laravel-doctor . --html=doctor-report.html
+
+# Si usas opción C (uso directo), pasa la ruta del proyecto como argumento
+php c:/laragon/www/laravel-doctor/bin/laravel-doctor c:/laragon/www/mi-app
+php c:/laragon/www/laravel-doctor/bin/laravel-doctor c:/laragon/www/mi-app --html=mi-app-report.html
 ```
 
-### Dashboard web (montado automáticamente fuera de producción)
+### Dashboard web (sólo con opción A o B)
 
-Al instalar el paquete, el ServiceProvider monta dos rutas — pero **solo** cuando `APP_ENV` es `local`, `development`, `testing` o `staging`:
+El `ServiceProvider` monta dos rutas, **únicamente** cuando `APP_ENV` es `local`, `development`, `testing` o `staging`:
 
 - `GET /doctor` → dashboard HTML interactivo
 - `GET /doctor/json` → JSON crudo
 
-Solo abre `http://tu-app.test/doctor` mientras desarrollas.
+Abre `http://tu-app.test/doctor` mientras desarrollas. En producción las rutas no existen, así que es seguro mantener el paquete instalado.
+
+## Verificar que funciona
+
+```bash
+php artisan doctor --help            # con opción A/B
+vendor/bin/laravel-doctor --help     # con opción A/B
+php c:/laragon/www/laravel-doctor/bin/laravel-doctor --help   # con opción C
+```
+
+Si el comando responde con la lista de flags y un score al final tras correr `doctor`, está todo bien.
 
 ## Checks incluidos (20)
 
