@@ -1,3 +1,18 @@
+# ============================================================================
+# PLANTILLA DE GITHUB ACTIONS PARA PROYECTOS LARAVEL QUE USEN LARAVEL-DOCTOR
+# ============================================================================
+# NO la copies a este repo (laravel-doctor) — está diseñada para correr
+# DENTRO de un proyecto Laravel que tenga laravel-doctor instalado como
+# dependencia de dev.
+#
+# Cómo usarla:
+#   1. Copia este archivo a TU proyecto Laravel en:
+#      .github/workflows/laravel-doctor.yml
+#   2. Asegúrate de que laravel-doctor esté en require-dev del composer.json
+#      de tu proyecto (ver README, sección "Instalación").
+#   3. Commit y push. GitHub Actions correrá el doctor en cada PR y push.
+# ============================================================================
+
 name: Laravel Doctor
 
 on:

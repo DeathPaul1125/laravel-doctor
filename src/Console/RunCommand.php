@@ -43,9 +43,15 @@ final class RunCommand extends Command
             return Command::FAILURE;
         }
 
+        $isJson = (bool) $input->getOption('json');
+        // En modo JSON, los avisos/errores van a stderr para no corromper el stdout que se redirige a archivo.
+        $messageOut = $isJson && $output instanceof \Symfony\Component\Console\Output\ConsoleOutputInterface
+            ? $output->getErrorOutput()
+            : $output;
+
         $context = new CheckContext($absolute);
         if (!$context->isLaravelProject()) {
-            $output->writeln('<comment>Aviso: ' . $absolute . ' no parece ser un proyecto Laravel (falta artisan o composer.json). Se continúa de todos modos.</comment>');
+            $messageOut->writeln('<comment>Aviso: ' . $absolute . ' no parece ser un proyecto Laravel (falta artisan o composer.json). Se continúa de todos modos.</comment>');
         }
 
         $config = Config::loadFromProject($absolute);
@@ -54,12 +60,10 @@ final class RunCommand extends Command
         if ($category) {
             $checks = array_values(array_filter($checks, fn ($c) => $c->category() === $category));
             if (empty($checks)) {
-                $output->writeln('<error>Categoría desconocida: ' . $category . '</error>');
+                $messageOut->writeln('<error>Categoría desconocida: ' . $category . '</error>');
                 return Command::FAILURE;
             }
         }
-
-        $isJson = (bool) $input->getOption('json');
         $useBaseline = (bool) $input->getOption('baseline');
         $updateBaseline = (bool) $input->getOption('update-baseline');
         $showProgress = !$isJson && !(bool) $input->getOption('no-progress');
